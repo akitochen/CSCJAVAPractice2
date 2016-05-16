@@ -139,7 +139,7 @@ public class ATMFileParser {
 					((SuperATM) baseATM).deposit(operationObject.getMoney());
 					baseATM.logout();
 				} else {
-					String message = String.format("%d號ATM %s can't deposit money", baseATM.getAtmNumber(), baseATM.geAtmType().toString());
+					String message = String.format("%d號ATM %s 沒有存款功能", baseATM.getAtmNumber(), baseATM.geAtmType().toString());
 					System.out.println(message);
 					recordErrorMessage(operationObject, message);
 				}
