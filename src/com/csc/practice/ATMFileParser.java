@@ -3,18 +3,27 @@
  */
 package com.csc.practice;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
-import com.csc.practice.ATM.ATMFactory;
 import com.csc.practice.ATM.ATMType;
 import com.csc.practice.ATM.BaseATM;
+import com.csc.practice.ATM.CityATM;
+import com.csc.practice.ATM.SuperATM;
+import com.csc.practice.Bank.Account;
 import com.csc.practice.Bank.Bank;
+import com.csc.practice.parser.ATMParser;
+import com.csc.practice.parser.AccountParser;
+import com.csc.practice.parser.OperationObject;
+import com.csc.practice.parser.OperationParser;
+
+import Exception.InsufficientBalanceException;
+import Exception.InsufficientMoneyException;
+import Exception.NotLoginException;
+import Exception.OutOfPassbookUpdateTimesException;
+import Exception.OvercapacityException;
 
 /**
  * @author 189993
@@ -22,105 +31,169 @@ import com.csc.practice.Bank.Bank;
  */
 public class ATMFileParser {
 	private Bank bank;
-	
-	public ATMFileParser(){
+	private Map<Integer, BaseATM> atmList = null;
+	private Map<String, Account> accountList = null;
+	private List<OperationObject> operationList = null;
+
+	public ATMFileParser() {
 		bank = new Bank();
 	}
-	
+
 	public void parseATM(String filePath) {
-		try {
-			String pattern = "^(\\d+)\\[([A-Za-z]+)\\,(\\d+)\\]$";
-			Pattern r = Pattern.compile(pattern);
-			List<String> atmList = readInput(filePath);
-			for (String line : atmList) {
-				System.out.println(line);
-				Matcher m = r.matcher(line);
-				if (m.find()) {
-					int atmNumber = Integer.parseInt(m.group(1));
-					String atmTypeString =  m.group(2);
-					int initialMoney = Integer.parseInt(m.group(3));
-					
-					ATMType atmType = ATMType.parseATMType(atmTypeString);
-					BaseATM baseATM = ATMFactory.createATM(atmType, bank, initialMoney);
-				} else {
-					// throw format exception
-					System.out.println("NO MATCH");
-				}
-			}
-		} catch (IOException exception) {
-			System.out.println("parseATM IOException : " + exception.getMessage());
-		} catch (Exception exception) {
-			System.out.println("parseATM Exception : " + exception.getMessage());
-		}
+		ATMParser atmParser = new ATMParser(bank);
+		atmList = atmParser.parse(filePath);
+		//for (BaseATM atm : atmList.values()) {
+		//	System.out.println(atm.toString());
+		//}
 	}
 
 	public void parseAccount(String filePath) {
-		try {
-			String pattern = "^([A-Z]\\d+)\\,(\\d+)\\,(\\d+)\\,([A-Za-z]+)$";
-			Pattern r = Pattern.compile(pattern);
-			List<String> accountList = readInput(filePath);
-			for (String line : accountList) {
-				System.out.println(line);
-				Matcher m = r.matcher(line);
-				if (m.find()) {
-					System.out.println("Found value: " + m.group(1));
-					System.out.println("Found value: " + m.group(2));
-					System.out.println("Found value: " + m.group(3));
-					System.out.println("Found value: " + m.group(4));
-				} else {
-					// throw format exception
-					System.out.println("NO MATCH");
-				}
-			}
-		} catch (IOException exception) {
-			System.out.println("parseAccount IOException : " + exception.getMessage());
-		} catch (Exception exception) {
-			System.out.println("parseAccount Exception : " + exception.getMessage());
-		}
+		AccountParser accountParser = new AccountParser(bank);
+		accountList = accountParser.parse(filePath);
+		//for (Account account : accountList.values()) {
+		//	System.out.println(account.toString());
+		//}
 	}
 
 	public void parseOperation(String filePath) {
-		try {
-			String pattern = "^([PWD])\\###(\\d+)\\###(\\d+)\\###([A-Za-z]\\d+)*\\###(\\d+)*";
-			Pattern r = Pattern.compile(pattern);
-			List<String> operationList = readInput(filePath);
-			for (String line : operationList) {
-				System.out.println(line);
-				Matcher m = r.matcher(line);
-				if (m.find()) {
-					System.out.println("Found value: " + m.group(1));
-					System.out.println("Found value: " + m.group(2));
-					System.out.println("Found value: " + m.group(3));
-					System.out.println("Found value: " + m.group(4));
-					System.out.println("Found value: " + m.group(5));
-				} else {
-					// throw format exception
-					System.out.println("NO MATCH");
-				}
+		OperationParser operationParser = new OperationParser();
+		operationList = operationParser.parse(filePath);
+		//for (OperationObject operation : operationList) {
+		//	System.out.println(operation.toString());
+		//}
+	}
+
+	public void ExecuteOperation() {
+		for (OperationObject operationObject : operationList) {
+			switch (operationObject.getOperator()) {
+			case "P":
+				executePut(operationObject);
+				break;
+			case "W":
+				executeWithdraw(operationObject);
+				break;
+			case "D":
+				executeDeposit(operationObject);
+				break;
+			default:
+				//
+				break;
 			}
-		} catch (IOException exception) {
-			System.out.println("parseOperation IOException : " + exception.getMessage());
-		} catch (Exception exception) {
-			System.out.println("parseOperation Exception : " + exception.getMessage());
+		}
+
+		recordAtmMoney();
+		recordAccountMoney();
+	}
+
+	private void executePut(OperationObject operationObject) {
+		BaseATM baseATM = atmList.get(operationObject.getAtmNumber());
+		if (baseATM != null) {
+			try {
+				baseATM.putMoney(operationObject.getMoney());
+			} catch (OvercapacityException exception) {
+				System.out.println("executePut OvercapacityException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (Exception exception) {
+				System.out.println(exception.toString());
+				recordErrorMessage(operationObject, exception.toString());
+			}
 		}
 	}
 
-	private List<String> readInput(String filePath) throws IOException {
-		List<String> result = new ArrayList<>();
-		BufferedReader fileReader = null;
-
-		try {
-			fileReader = new BufferedReader(new FileReader(filePath));
-
-			String line;
-			while ((line = fileReader.readLine()) != null) {
-				result.add(line);
-			}
-		} finally {
-			if (fileReader != null) {
-				fileReader.close();
+	private void executeWithdraw(OperationObject operationObject) {
+		BaseATM baseATM = atmList.get(operationObject.getAtmNumber());
+		if (baseATM != null) {
+			try {
+				baseATM.login(operationObject.getCardId(), operationObject.getPassword());
+				baseATM.withDraw(operationObject.getMoney());
+				baseATM.logout();
+			} catch (NotLoginException exception) {
+				System.out.println("executeWithdraw NotLoginException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (InsufficientBalanceException exception) {
+				System.out.println("executeWithdraw InsufficientBalanceException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (InsufficientMoneyException exception) {
+				System.out.println("executeWithdraw InsufficientMoneyException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (OutOfPassbookUpdateTimesException exception) {
+				System.out.println("executeWithdraw OutOfPassbookUpdateTimesException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (Exception exception) {
+				System.out.println(exception.toString());
+				recordErrorMessage(operationObject, exception.toString());
 			}
 		}
-		return result;
+	}
+
+	private void executeDeposit(OperationObject operationObject) {
+		BaseATM baseATM = atmList.get(operationObject.getAtmNumber());
+		if (baseATM != null) {
+			try {
+				if (baseATM.geAtmType() == ATMType.CityATM) {
+					baseATM.login(operationObject.getCardId(), operationObject.getPassword());
+					((CityATM) baseATM).deposit(operationObject.getMoney());
+					baseATM.logout();
+				} else if (baseATM.geAtmType() == ATMType.SuperATM) {
+					baseATM.login(operationObject.getCardId(), operationObject.getPassword());
+					((SuperATM) baseATM).deposit(operationObject.getMoney());
+					baseATM.logout();
+				} else {
+					String message = String.format("%d號ATM %s can't deposit money", baseATM.getAtmNumber(), baseATM.geAtmType().toString());
+					System.out.println(message);
+					recordErrorMessage(operationObject, message);
+				}
+			} catch (NotLoginException exception) {
+				System.out.println("executeDeposit NotLoginException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (OvercapacityException exception) {
+				System.out.println("executeDeposit OvercapacityException : " + exception.getMessage());
+				recordErrorMessage(operationObject, exception.getMessage());
+			} catch (Exception exception) {
+				System.out.println(exception.toString());
+				recordErrorMessage(operationObject, exception.toString());
+			}
+		}
+	}
+
+	private void recordAtmMoney() {
+		for (BaseATM baseATM : atmList.values()) {
+			String moneyLog = String.format("%d[%s,%d]", baseATM.getAtmNumber(), baseATM.geAtmType().toString(),
+					baseATM.getRemainMoney());
+			writeToFile("ATMRemainMoney.txt", moneyLog);
+		}
+	}
+
+	private void recordAccountMoney() {
+		for (Account account : accountList.values()) {
+			String accountLog = String.format("%s,%s,%d,%s", account.getCardId(), account.getPassword(),
+					account.getDeposit(), account.getName());
+			writeToFile("AccountRemainMoney.txt", accountLog);
+		}
+	}
+
+	private void recordErrorMessage(OperationObject operationObject, String message) {
+		String errorMessage = String.format("[%d][%s][%s]", operationObject.getAtmNumber(), 
+				operationObject.getCardId(), message);
+		writeToFile("ErrorMessage.txt", errorMessage);
+	}
+
+	private void writeToFile(String fileName, String content) {
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(fileName, true);
+			fileWriter.write(content + "\r\n");
+		} catch (IOException exception) {
+			System.out.println("writeToFile IOException : " + exception.toString());
+		} finally {
+			if (fileWriter != null) {
+				try {
+					fileWriter.close();
+				} catch (Exception exception) {
+					System.out.println("writeToFile close : " + exception.toString());
+				}
+
+			}
+		}
 	}
 }

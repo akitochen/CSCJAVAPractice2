@@ -15,8 +15,9 @@ public class ATMFileParserTest {
 	public static void main(String[] args) {
 		ATMFileParser atmFileParser = new ATMFileParser();
 		atmFileParser.parseATM("ATM.txt");
-		//atmFileParser.parseAccount("Account.txt");
-		//atmFileParser.parseOperation("Operaction.txt");
+		atmFileParser.parseAccount("Account.txt");
+		atmFileParser.parseOperation("Operaction.txt");
+		atmFileParser.ExecuteOperation();
 	}
 
 }
