@@ -44,8 +44,7 @@ public class ATMParser extends AbstractParser {
 					baseATM.setAtmNumber(atmNumber);
 					atmList.put(atmNumber, baseATM);
 				} else {
-					// should throw format exception
-					System.out.println("NO MATCH");
+					System.out.println("No Match ATM");
 				}
 			}
 		} catch (IOException exception) {

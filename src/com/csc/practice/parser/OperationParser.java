@@ -36,8 +36,7 @@ public class OperationParser extends AbstractParser {
 					OperationObject operationObject = new OperationObject(operator, atmNumber, money, cardId, password);
 					operationObjectList.add(operationObject);
 				} else {
-					// throw format exception
-					System.out.println("NO MATCH");
+					System.out.println("No Match Operation");
 				}
 			}
 		} catch (IOException exception) {

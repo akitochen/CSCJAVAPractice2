@@ -41,7 +41,8 @@ public class OperationObject {
 		this.money = money;
 	}
 	public String getCardId() {
-		return cardId;
+		String currentCaridId = this.cardId != null ? this.cardId : "";
+		return currentCaridId;
 	}
 	public void setCardId(String cardId) {
 		this.cardId = cardId;

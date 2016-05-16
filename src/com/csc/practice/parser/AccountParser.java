@@ -45,8 +45,7 @@ public class AccountParser extends AbstractParser {
 					Account account = bank.addAccount(cardId, name, password, deposit);
 					accountList.put(cardId, account);
 				} else {
-					// throw format exception
-					System.out.println("NO MATCH");
+					System.out.println("No Match Account");
 				}
 			}
 		} catch (IOException exception) {

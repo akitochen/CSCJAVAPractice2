@@ -76,7 +76,7 @@ public class ATMFileParser {
 				executeDeposit(operationObject);
 				break;
 			default:
-				//
+				System.out.println("Illegal Operation !");
 				break;
 			}
 		}
@@ -173,8 +173,9 @@ public class ATMFileParser {
 	}
 
 	private void recordErrorMessage(OperationObject operationObject, String message) {
-		String errorMessage = String.format("[%d][%s][%s]", operationObject.getAtmNumber(), 
-				operationObject.getCardId(), message);
+		int atmNumber = operationObject.getAtmNumber();
+		String cardId = operationObject.getCardId();
+		String errorMessage = String.format("[%d][%s][%s]", atmNumber, operationObject.getCardId(), message);
 		writeToFile("ErrorMessage.txt", errorMessage);
 	}
 
