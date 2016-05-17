@@ -20,7 +20,7 @@ public class OperationParser extends AbstractParser {
 		List<OperationObject> operationObjectList = new ArrayList<OperationObject>();
 
 		try {
-			String pattern = "^([PWD])\\###(\\d+)\\###(\\d+)\\###([A-Za-z]\\d+)*\\###(\\d+)*";
+			String pattern = "^([PWD])\\###(\\d+)\\###(\\d+)\\###(\\S+)*\\###(\\S+)*";
 			Pattern r = Pattern.compile(pattern);
 			List<String> operationList = super.readInput(filePath);
 			for (String line : operationList) {
