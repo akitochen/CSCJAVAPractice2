@@ -36,7 +36,7 @@ public class ATMFileParser {
 	private List<OperationObject> operationList = null;
 
 	public ATMFileParser() {
-		bank = new Bank();
+		bank = new Bank(1);
 	}
 
 	public void parseATM(String filePath) {

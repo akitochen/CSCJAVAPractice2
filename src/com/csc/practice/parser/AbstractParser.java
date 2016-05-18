@@ -14,8 +14,8 @@ import java.util.List;
  * @param <T>
  *
  */
-public abstract class AbstractParser<T>{	
-	public abstract T parse(String fileName);
+public abstract class AbstractParser{	
+	public abstract <T> T parse(String fileName);
 	
 	public List<String> readInput(String filePath) throws IOException {
 		List<String> result = new ArrayList<>();
