@@ -11,8 +11,7 @@ import java.util.List;
 
 /**
  * @author 189993
- * @param <T>
- *
+  *
  */
 public abstract class AbstractParser{	
 	public abstract <T> T parse(String fileName);

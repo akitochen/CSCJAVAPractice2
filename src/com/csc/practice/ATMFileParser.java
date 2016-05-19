@@ -175,7 +175,7 @@ public class ATMFileParser {
 	private void recordErrorMessage(OperationObject operationObject, String message) {
 		int atmNumber = operationObject.getAtmNumber();
 		String cardId = operationObject.getCardId();
-		String errorMessage = String.format("[%d][%s][%s]", atmNumber, operationObject.getCardId(), message);
+		String errorMessage = String.format("[%d][%s][%s]", atmNumber, cardId, message);
 		writeToFile("ErrorMessage.txt", errorMessage);
 	}
 

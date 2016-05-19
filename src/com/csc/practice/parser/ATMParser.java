@@ -40,9 +40,14 @@ public class ATMParser extends AbstractParser {
 					ATMType atmType = ATMType.parseATMType(m.group(2));
 					int initialMoney = Integer.parseInt(m.group(3));
 
-					BaseATM baseATM = bank.addATM(atmType, initialMoney);
-					baseATM.setAtmNumber(atmNumber);
-					atmList.put(atmNumber, baseATM);
+					if (atmType != null) {
+						BaseATM baseATM = bank.addATM(atmType, initialMoney);
+						baseATM.setAtmNumber(atmNumber);
+						atmList.put(atmNumber, baseATM);
+					}
+					else{
+						System.out.println("Bad ATM Type : " + m.group(2));
+					}
 				} else {
 					System.out.println("No Match ATM");
 				}

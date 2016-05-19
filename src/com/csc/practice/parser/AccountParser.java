@@ -30,7 +30,7 @@ public class AccountParser extends AbstractParser {
 		Map<String, Account> accountList = new HashMap<String, Account>();
 
 		try {
-			String pattern = "^([A-Z]\\d+)\\,(\\d+)\\,(\\d+)\\,([A-Za-z]+)$";
+			String pattern = "^(S+)\\,(\\S+)\\,(\\d+)\\,(S+)$";
 			Pattern r = Pattern.compile(pattern);
 			List<String> accountStringList = readInput(filePath);
 			for (String line : accountStringList) {
